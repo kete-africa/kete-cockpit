@@ -60,7 +60,7 @@
   "status_down": "Down",
   "status_unreachable": "Unreachable",
   "status_unknown": "Never checked",
-  "apps_events_24h": "{count} events in 24 h",
+  "apps_events_24h": "Events in 24 h: {count}",
   "apps_last_event": "Last event: {date}",
   "apps_no_event": "No event received",
   "app_health": "Health",

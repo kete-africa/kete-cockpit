@@ -60,7 +60,7 @@
   "status_down": "En panne",
   "status_unreachable": "Injoignable",
   "status_unknown": "Jamais relevée",
-  "apps_events_24h": "{count} événements en 24 h",
+  "apps_events_24h": "Événements en 24 h : {count}",
   "apps_last_event": "Dernier événement : {date}",
   "apps_no_event": "Aucun événement reçu",
   "app_health": "Santé",

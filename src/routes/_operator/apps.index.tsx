@@ -62,9 +62,9 @@ function Apps() {
       {result.data.length === 0 ? (
         <Notice tone="info">{m.apps_none()}</Notice>
       ) : (
-        <ul className="grid gap-px border border-rule bg-rule sm:grid-cols-2">
+        <ul className="grid gap-4 sm:grid-cols-2">
           {result.data.map((app) => (
-            <li key={app.id} className="flex flex-col gap-3 bg-paper p-5">
+            <li key={app.id} className="flex flex-col gap-3 border border-rule bg-paper p-5">
               <div className="flex flex-wrap items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <Link

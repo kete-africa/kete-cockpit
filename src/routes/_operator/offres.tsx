@@ -26,6 +26,11 @@ function price(value: Catalog['offers'][number]['price']) {
   );
 }
 
+/** A provider's display name ("chariow" → "Chariow"). */
+function providerName(provider: string): string {
+  return provider.charAt(0).toUpperCase() + provider.slice(1);
+}
+
 /** Signed out or refused mid-way: the whole page goes through the door again. */
 function reenter(status: 'signed_out' | 'refused') {
   window.location.assign(
@@ -61,7 +66,9 @@ function Offers() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h1 className="font-headline text-headline font-extrabold">{m.offers_title()}</h1>
-        <p className="text-body-lg text-bark">{m.offers_intro({ provider: catalog.provider })}</p>
+        <p className="text-body-lg text-bark">
+          {m.offers_intro({ provider: providerName(catalog.provider) })}
+        </p>
       </div>
       {notice === 'saved' && <Notice tone="success">{m.offers_saved()}</Notice>}
       {notice === 'removed' && <Notice tone="success">{m.offers_removed()}</Notice>}
@@ -75,10 +82,9 @@ function Offers() {
             {catalog.offers.map((offer) => (
               <li key={offer.id} className="flex flex-wrap items-center gap-3 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold">
-                    {appName[offer.app]()} — {offer.name}
-                  </p>
+                  <p className="font-semibold">{offer.name}</p>
                   <p className="text-body-sm text-bark">
+                    {appName[offer.app]()} ·{' '}
                     {m.offers_period({
                       days: String(offer.periodDays),
                       grace: String(offer.graceDays),
