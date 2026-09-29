@@ -19,6 +19,12 @@ let cockpit: ChildProcess | undefined;
 
 test.describe.configure({ mode: 'serial' });
 
+/** COCKPIT_SCREENSHOTS=<folder>: keep a picture of each screen the journeys go through. */
+async function shot(page: Page, name: string) {
+  const folder = process.env.COCKPIT_SCREENSHOTS;
+  if (folder) await page.screenshot({ path: `${folder}/${name}.png`, fullPage: true });
+}
+
 /** RFC 6238 code from a base32 secret, as an authenticator app computes it. */
 function totp(secret: string, at = Date.now()): string {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -213,11 +219,13 @@ test('an operator signs in with two-factor and offers a product that clients the
   await signInToCockpit(page);
   await page.goto(`${COCKPIT}/offres`);
   await expect(page.getByRole('heading', { name: 'Offres', level: 1 })).toBeVisible();
+  await shot(page, '2-offres-avant');
   const product = page.locator('li', { hasText: 'Nettio — 30 jours (e2e)' });
   await product.getByLabel('Application').selectOption('nettio');
   await product.getByLabel('Durée (jours)').fill('30');
   await product.getByRole('button', { name: 'Proposer' }).click();
   await expect(page.getByText('Offre enregistrée.')).toBeVisible();
+  await shot(page, '3-offres-apres');
   await expect(
     page.locator('li', { hasText: 'Nettio — 30 jours (e2e)' }).getByText('En vente'),
   ).toBeVisible();
@@ -245,6 +253,7 @@ test('a client of Kete is kept out of the Cockpit, and told why', async ({ page 
   await page.goto(`${COCKPIT}/offres`);
   await page.waitForURL(`${COCKPIT}/refus**`);
   await expect(page.getByText('Kete Cockpit est réservé aux opérateurs Kete.')).toBeVisible();
+  await shot(page, '7-refus');
 });
 
 test('an operator registers the Compte Kete, reads its health and sees its signed events', async ({
@@ -254,6 +263,8 @@ test('an operator registers the Compte Kete, reads its health and sees its signe
   await page.goto(`${COCKPIT}/apps`);
   await page.getByLabel('Adresse de l’app').fill(ACCOUNT);
   await page.getByRole('button', { name: 'Déclarer' }).click();
+  await expect(page.getByTestId('key-secret')).toBeVisible();
+  await shot(page, '4-apps-cle');
   const secretLine = (await page.getByTestId('key-secret').textContent()) ?? '';
   const kidLine = (await page.getByText(/^Identifiant : /).textContent()) ?? '';
   const key = {
@@ -301,4 +312,9 @@ test('an operator registers the Compte Kete, reads its health and sees its signe
 
   await page.reload();
   await expect(page.getByTestId('events').getByText('account.created')).toBeVisible();
+  await shot(page, '5-app-detail');
+  await page.goto(`${COCKPIT}/apps`);
+  await shot(page, '1-apps');
+  await page.setViewportSize({ width: 375, height: 812 });
+  await shot(page, '6-apps-telephone');
 });
