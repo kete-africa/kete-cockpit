@@ -2,6 +2,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { createHmac, randomBytes } from 'node:crypto';
 import { fileURLToPath, URL } from 'node:url';
 import { expect, test, type Browser, type Page } from '@playwright/test';
+import { createEvent, sign } from '@kete/sdk';
 import pg from 'pg';
 
 // Spec 008: a Kete operator runs the offers catalog from Kete Cockpit; nobody else gets in.
@@ -60,6 +61,11 @@ function accountClient() {
 }
 
 test.beforeAll(async () => {
+  // A previous interrupted run may have left the Compte Kete registered.
+  const registry = new pg.Pool({ connectionString: process.env.COCKPIT_TEST_APP_URL, max: 1 });
+  await registry.query(`delete from apps where product = 'prd_kete_account'`);
+  await registry.end();
+
   // An operator: two-factor on, owner of Kete's organization (the test's).
   const operator = accountClient();
   const signUp = await operator('/sign-up/email', {
@@ -141,6 +147,9 @@ test.beforeAll(async () => {
         COCKPIT_CLIENT_SECRET: client.client_secret,
         COCKPIT_SESSION_SECRET: randomBytes(32).toString('hex'),
         KETE_OPERATORS_ORGANIZATION_ID: OPERATORS,
+        COCKPIT_DATABASE_URL: process.env.COCKPIT_TEST_APP_URL,
+        COCKPIT_ENCRYPTION_KEY: randomBytes(32).toString('base64'),
+        COCKPIT_PROBE_INTERVAL_SECONDS: '0',
       },
       stdio: 'ignore',
     },
@@ -156,6 +165,10 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   cockpit?.kill();
+  const registry = new pg.Pool({ connectionString: process.env.COCKPIT_TEST_APP_URL, max: 1 });
+  await registry.query(`delete from kete_received_events where product = 'prd_kete_account'`);
+  await registry.query(`delete from apps where product = 'prd_kete_account'`);
+  await registry.end();
   const owner = new pg.Pool({ connectionString: process.env.ACCOUNT_TEST_OWNER_URL, max: 1 });
   await owner.query(`update offers set active = false where provider_product_id = $1`, [PRODUCT]);
   await owner.end();
@@ -170,7 +183,7 @@ async function signInToCockpit(page: Page) {
   await page.waitForURL(`${ACCOUNT}/connexion/code**`);
   await page.getByLabel('Code').fill(totp(totpSecret));
   await page.getByRole('button', { name: 'Vérifier' }).click();
-  await page.waitForURL(`${COCKPIT}/offres`);
+  await page.waitForURL(`${COCKPIT}/apps`);
 }
 
 async function clientSeesOffer(browser: Browser): Promise<boolean> {
@@ -198,6 +211,7 @@ test('an operator signs in with two-factor and offers a product that clients the
   browser,
 }) => {
   await signInToCockpit(page);
+  await page.goto(`${COCKPIT}/offres`);
   await expect(page.getByRole('heading', { name: 'Offres', level: 1 })).toBeVisible();
   const product = page.locator('li', { hasText: 'Nettio — 30 jours (e2e)' });
   await product.getByLabel('Application').selectOption('nettio');
@@ -212,6 +226,7 @@ test('an operator signs in with two-factor and offers a product that clients the
 
 test('the operator withdraws the offer; clients no longer see it', async ({ page, browser }) => {
   await signInToCockpit(page);
+  await page.goto(`${COCKPIT}/offres`);
   await page
     .locator('li', { hasText: 'Nettio — 30 jours (e2e)' })
     .getByRole('button', { name: 'Retirer' })
@@ -230,4 +245,60 @@ test('a client of Kete is kept out of the Cockpit, and told why', async ({ page 
   await page.goto(`${COCKPIT}/offres`);
   await page.waitForURL(`${COCKPIT}/refus**`);
   await expect(page.getByText('Kete Cockpit est réservé aux opérateurs Kete.')).toBeVisible();
+});
+
+test('an operator registers the Compte Kete, reads its health and sees its signed events', async ({
+  page,
+}) => {
+  await signInToCockpit(page);
+  await page.goto(`${COCKPIT}/apps`);
+  await page.getByLabel('Adresse de l’app').fill(ACCOUNT);
+  await page.getByRole('button', { name: 'Déclarer' }).click();
+  const secretLine = (await page.getByTestId('key-secret').textContent()) ?? '';
+  const kidLine = (await page.getByText(/^Identifiant : /).textContent()) ?? '';
+  const key = {
+    kid: kidLine.replace('Identifiant : ', '').trim(),
+    secret: secretLine.replace('Secret : ', '').trim(),
+  };
+  expect(key.secret.length).toBeGreaterThan(30);
+
+  await page.getByRole('link', { name: 'Compte Kete' }).click();
+  await page.getByRole('button', { name: 'Relever maintenant' }).click();
+  await expect(page.getByTestId('probes').getByText('En forme').first()).toBeVisible({
+    timeout: 20_000,
+  });
+
+  // The Compte Kete declares no event yet: an app declaring one would sign it this way.
+  const registry = new pg.Pool({ connectionString: process.env.COCKPIT_TEST_APP_URL, max: 1 });
+  await registry.query(
+    `update apps set events = '["account.created"]' where product = 'prd_kete_account'`,
+  );
+  await registry.end();
+  const event = createEvent({
+    type: 'account.created',
+    product: 'prd_kete_account',
+    organization: 'org_client_e2e1',
+    data: {},
+    declaredTypes: ['account.created'],
+  });
+  const body = JSON.stringify({ events: [event] });
+  const delivered = await fetch(`${COCKPIT}/api/events`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'kete-product': 'prd_kete_account',
+      'kete-signature': sign(body, key),
+    },
+    body,
+  });
+  expect(delivered.status).toBe(200);
+  const forged = await fetch(`${COCKPIT}/api/events`, {
+    method: 'POST',
+    headers: { 'kete-product': 'prd_kete_account', 'kete-signature': 't=1,kid=x,v1=00' },
+    body,
+  });
+  expect(forged.status).toBe(401);
+
+  await page.reload();
+  await expect(page.getByTestId('events').getByText('account.created')).toBeVisible();
 });

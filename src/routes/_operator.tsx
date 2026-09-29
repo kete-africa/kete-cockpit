@@ -29,7 +29,7 @@ function Layout() {
       <KeteBand />
       <header className="border-b border-rule bg-paper">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-4 sm:gap-x-6 sm:px-8">
-          <Link to="/offres" aria-label={m.nav_offers()} className="order-1">
+          <Link to="/apps" aria-label={m.nav_apps()} className="order-1">
             <Wordmark />
           </Link>
           <div className="order-2 ml-auto flex items-center gap-2 sm:order-5 sm:ml-0 sm:gap-3">
@@ -45,6 +45,12 @@ function Layout() {
             {operator.name}
           </p>
           <nav className="order-4 flex w-full gap-4 sm:order-2 sm:w-auto">
+            <Link
+              to="/apps"
+              className="whitespace-nowrap border-b-2 border-transparent py-1 text-body-sm font-semibold text-bark hover:text-ink data-[status=active]:border-primary data-[status=active]:text-ink"
+            >
+              {m.nav_apps()}
+            </Link>
             <Link
               to="/offres"
               className="whitespace-nowrap border-b-2 border-transparent py-1 text-body-sm font-semibold text-bark hover:text-ink data-[status=active]:border-primary data-[status=active]:text-ink"

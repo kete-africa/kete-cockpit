@@ -10,9 +10,9 @@ if (existsSync(rootEnv)) process.loadEnvFile(rootEnv);
 
 const databaseUrl = process.env.ACCOUNT_TEST_APP_URL;
 const authSecret = process.env.ACCOUNT_TEST_AUTH_SECRET;
-if (!databaseUrl || !authSecret) {
+if (!databaseUrl || !authSecret || !process.env.COCKPIT_TEST_APP_URL) {
   throw new Error(
-    'ACCOUNT_TEST_APP_URL and ACCOUNT_TEST_AUTH_SECRET must be set (see .env.example).',
+    'ACCOUNT_TEST_APP_URL, ACCOUNT_TEST_AUTH_SECRET and COCKPIT_TEST_APP_URL must be set (see .env.example).',
   );
 }
 

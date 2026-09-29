@@ -25,6 +25,16 @@ export const env = {
   get sessionSecret() {
     return required('COCKPIT_SESSION_SECRET');
   },
+  /** The Cockpit's database, application role (no BYPASSRLS). */
+  get databaseUrl() {
+    return required('COCKPIT_DATABASE_URL');
+  },
+  /** 32 bytes, base64: encrypts the apps' event-signing secrets at rest. */
+  get encryptionKey() {
+    const key = Buffer.from(required('COCKPIT_ENCRYPTION_KEY'), 'base64');
+    if (key.length !== 32) throw new Error('COCKPIT_ENCRYPTION_KEY must be 32 bytes, base64.');
+    return key;
+  },
   /** Kete's organization in the Compte Kete: its owners and admins with two-factor operate. */
   get operatorsOrganizationId() {
     return required('KETE_OPERATORS_ORGANIZATION_ID');

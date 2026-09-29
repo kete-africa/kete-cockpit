@@ -1,18 +1,22 @@
 # Kete Cockpit (`apps/cockpit`)
 
-Where Kete operators run the Kete apps (doctrine step 1, decision D-022). V0: operators sign in
-with their Compte Kete and manage the **offers catalog** that clients buy from in Mon espace Kete.
-The app registry, events, the morning brief and agent access come next (see the roadmap).
+Where Kete operators run the Kete apps (doctrine step 1, decision D-022). Operators sign in with
+their Compte Kete; they manage the **offers catalog** that clients buy from in Mon espace Kete, and
+the **app registry**: each app's health and the events it delivers. The morning brief and agent
+access come next (see the roadmap).
 
 ## Screens
 
-| Path         | What it is for                                                    |
-| ------------ | ----------------------------------------------------------------- |
-| `/offres`    | Offers on sale or withdrawn; the store's products not yet offered |
-| `/refus`     | Why someone cannot enter (not an operator, no second factor)      |
-| `/au-revoir` | After signing out of the Cockpit                                  |
-| `/auth/*`    | Sign-in with the Compte Kete (start, callback, sign-out)          |
-| `/health`    | Liveness                                                          |
+| Path           | What it is for                                                                           |
+| -------------- | ---------------------------------------------------------------------------------------- |
+| `/apps`        | Registered apps: health, version, events of the last 24 h; register one (key shown once) |
+| `/apps/$appId` | Health history, check now, latest events, signing keys and rotation                      |
+| `/api/events`  | Where apps deliver their signed events (`@kete/sdk` relay)                               |
+| `/offres`      | Offers on sale or withdrawn; the store's products not yet offered                        |
+| `/refus`       | Why someone cannot enter (not an operator, no second factor)                             |
+| `/au-revoir`   | After signing out of the Cockpit                                                         |
+| `/auth/*`      | Sign-in with the Compte Kete (start, callback, sign-out)                                 |
+| `/health`      | Liveness                                                                                 |
 
 ## How it works
 
@@ -43,7 +47,20 @@ sequenceDiagram
   through the Compte Kete.
 - **Operators**: owners or admins of `KETE_OPERATORS_ORGANIZATION_ID`, with two-factor on — checked
   by the Cockpit, and again by the Compte Kete on every admin call.
-- No database of its own yet.
+- **Its own database** (Neon `kete-cockpit`): registry, keys (secrets encrypted at rest), health
+  readings, received events — Kete's operating data, decision 0004.
+- **Health** is read every `COCKPIT_PROBE_INTERVAL_SECONDS` (default 300) by one instance at a time.
+
+```mermaid
+flowchart LR
+  App[Kete app<br/>@kete/sdk outbox + relay] -->|signed batch, kid| E[/api/events/]
+  E --> R{key ring + declared types}
+  R -->|once| T[(kete_received_events)]
+  C[Cockpit scheduler] -->|GET /health| App
+  C --> P[(probes)]
+  O[Operator] -->|register address| M[/.well-known/kete/]
+  M --> A[(apps + app_keys)]
+```
 
 ## Run locally
 
@@ -57,9 +74,12 @@ pnpm --filter @kete/cockpit dev
 
 ## Tests
 
-`e2e/cockpit.spec.ts` (production builds of both apps, Neon `test`, a fake payment provider): an
-operator signs in with two-factor, offers a product that a client then sees in Mon espace Kete,
-withdraws it, and a client of Kete is refused.
+- `tests/registry.test.ts` (Neon `test`, a witness app): registration and its refusals, health
+  readings, events accepted once, forged/foreign/undeclared/retired-key deliveries refused.
+- `e2e/cockpit.spec.ts` (production builds of both apps, Neon `test`, a fake payment provider): an
+  operator signs in with two-factor, offers a product that a client then sees in Mon espace Kete,
+  withdraws it; registers the Compte Kete, reads it healthy and sees a signed event; a client of
+  Kete is refused.
 
 ```bash
 pnpm --filter @kete/cockpit test:e2e
@@ -69,4 +89,6 @@ pnpm --filter @kete/cockpit test:e2e
 
 `apps/cockpit/Dockerfile` (context at the repository root). Environment: `KETE_ACCOUNT_URL`,
 `COCKPIT_URL`, `COCKPIT_CLIENT_ID`, `COCKPIT_CLIENT_SECRET`, `COCKPIT_SESSION_SECRET`,
-`KETE_OPERATORS_ORGANIZATION_ID`.
+`KETE_OPERATORS_ORGANIZATION_ID`, `COCKPIT_DATABASE_URL`, `COCKPIT_ENCRYPTION_KEY`,
+`COCKPIT_PROBE_INTERVAL_SECONDS`. Migrations (owner role) before deploy:
+`COCKPIT_OWNER_URL=… pnpm --filter @kete/cockpit db:migrate`.
