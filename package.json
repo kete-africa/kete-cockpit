@@ -14,8 +14,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@kete/auth": "workspace:*",
-    "@kete/design": "workspace:*",
+    "@kete/auth": "workspace:@kete-africa/auth@*",
+    "@kete/design": "workspace:@kete-africa/design@*",
     "@tanstack/react-router": "^1.170.40",
     "@tanstack/react-start": "^1.168.59",
     "drizzle-orm": "^0.45.3",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@inlang/paraglide-js": "^2.25.4",
-    "@kete/sdk": "workspace:*",
+    "@kete/sdk": "workspace:@kete-africa/sdk@*",
     "@playwright/test": "1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/pg": "^8.23.1",
