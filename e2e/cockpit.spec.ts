@@ -185,7 +185,7 @@ async function signInToCockpit(page: Page) {
   await page.waitForURL(`${ACCOUNT}/connexion**`);
   await page.getByLabel('Adresse e-mail').fill(operatorEmail);
   await page.getByLabel('Mot de passe').fill(password);
-  await page.getByRole('button', { name: 'Se connecter' }).click();
+  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
   await page.waitForURL(`${ACCOUNT}/connexion/code**`);
   await page.getByLabel('Code').fill(totp(totpSecret));
   await page.getByRole('button', { name: 'Vérifier' }).click();
