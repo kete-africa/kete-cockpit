@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22.14.0
+          cache: pnpm
+          # Writes NODE_AUTH_TOKEN into the runner's user configuration, never into the repository.
+          registry-url: https://npm.pkg.github.com
+          scope: '@kete-africa'
+      - run: pnpm install --frozen-lockfile
+      - name: Types (and the build)
+        run: pnpm typecheck
+      - name: Migrate the Kete Cockpit "test" branch
+        run: pnpm db:migrate
+        env:
+          COCKPIT_OWNER_URL: ${{ secrets.COCKPIT_TEST_OWNER_URL }}
+      - name: Tests (Neon "test" branch)
+        run: pnpm test
+        env:
+          COCKPIT_TEST_APP_URL: ${{ secrets.COCKPIT_TEST_APP_URL }}
+      - name: The image builds, starts and reports healthy
+        run: docker build --secret id=node_auth_token,env=NODE_AUTH_TOKEN -t kete-cockpit:ci .

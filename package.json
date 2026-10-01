@@ -7,15 +7,14 @@
     "dev": "vite dev --port 3300",
     "build": "vite build",
     "start": "srvx serve --entry dist/server/server.js --static dist/client --prod --host 0.0.0.0 --port 3000",
-    "test:e2e": "playwright test",
     "typecheck": "vite build && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
     "test": "vitest run"
   },
   "dependencies": {
-    "@kete/auth": "workspace:@kete-africa/auth@*",
-    "@kete/design": "workspace:@kete-africa/design@*",
+    "@kete/auth": "npm:@kete-africa/auth@^0.1.0",
+    "@kete/design": "npm:@kete-africa/design@^0.2.0",
     "@tanstack/react-router": "^1.170.40",
     "@tanstack/react-start": "^1.168.59",
     "drizzle-orm": "^0.45.3",
@@ -27,7 +26,7 @@
   },
   "devDependencies": {
     "@inlang/paraglide-js": "^2.25.4",
-    "@kete/sdk": "workspace:@kete-africa/sdk@*",
+    "@kete/sdk": "npm:@kete-africa/sdk@^0.2.0",
     "@playwright/test": "1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/pg": "^8.23.1",
