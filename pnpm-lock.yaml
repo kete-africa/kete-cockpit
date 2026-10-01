@@ -14,6 +14,9 @@ importers:
       '@kete/design':
         specifier: npm:@kete-africa/design@^0.2.0
         version: '@kete-africa/design@0.2.0(react@19.3.0)'
+      '@kete/sdk':
+        specifier: npm:@kete-africa/sdk@^0.2.0
+        version: '@kete-africa/sdk@0.2.0'
       '@tanstack/react-router':
         specifier: ^1.170.40
         version: 1.170.40(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -42,9 +45,6 @@ importers:
       '@inlang/paraglide-js':
         specifier: ^2.25.4
         version: 2.25.4(vite@7.3.6(@types/node@22.20.4)(jiti@2.7.0)(lightningcss@1.33.0)(tsx@4.23.15)(yaml@2.9.1))
-      '@kete/sdk':
-        specifier: npm:@kete-africa/sdk@^0.2.0
-        version: '@kete-africa/sdk@0.2.0'
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0

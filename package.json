@@ -15,6 +15,7 @@
   "dependencies": {
     "@kete/auth": "npm:@kete-africa/auth@^0.1.0",
     "@kete/design": "npm:@kete-africa/design@^0.2.0",
+    "@kete/sdk": "npm:@kete-africa/sdk@^0.2.0",
     "@tanstack/react-router": "^1.170.40",
     "@tanstack/react-start": "^1.168.59",
     "drizzle-orm": "^0.45.3",
@@ -26,7 +27,6 @@
   },
   "devDependencies": {
     "@inlang/paraglide-js": "^2.25.4",
-    "@kete/sdk": "npm:@kete-africa/sdk@^0.2.0",
     "@playwright/test": "1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "22.20.4",
