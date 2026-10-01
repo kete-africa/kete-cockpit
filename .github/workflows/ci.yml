@@ -13,7 +13,8 @@ jobs:
   check:
     runs-on: ubuntu-latest
     env:
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # A token that reads kete-core's packages (read:packages): the repository's own token cannot.
+      NODE_AUTH_TOKEN: ${{ secrets.KETE_PACKAGES_TOKEN }}
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
