@@ -1,4 +1,4 @@
-# Kete Cockpit (`apps/cockpit`)
+# Kete Cockpit
 
 Where Kete operators run the Kete apps (doctrine step 1, decision D-022). Operators sign in with
 their Compte Kete; they manage the **offers catalog** that clients buy from in Mon espace Kete, and
@@ -64,31 +64,34 @@ flowchart LR
 
 ## Run locally
 
-`apps/cockpit/.env` (see `.env.example`) with the Compte Kete running on port 3100 and the Cockpit
-registered there (`pnpm --filter @kete/account clients create …`, redirect
-`http://127.0.0.1:3300/auth/callback`).
+`.env` (see `.env.example`) with the Compte Kete running on port 3100 and the Cockpit registered
+there (in kete-core: `pnpm --filter @kete/account clients create …`, redirect
+`http://127.0.0.1:3300/auth/callback`). `pnpm install` reads the `@kete-africa` packages with a
+read:packages token in your user configuration, never in this repository.
 
 ```bash
-pnpm --filter @kete/cockpit dev
+pnpm dev
 ```
 
 ## Tests
 
 - `tests/registry.test.ts` (Neon `test`, a witness app): registration and its refusals, health
   readings, events accepted once, forged/foreign/undeclared/retired-key deliveries refused.
-- `e2e/cockpit.spec.ts` (production builds of both apps, Neon `test`, a fake payment provider): an
-  operator signs in with two-factor, offers a product that a client then sees in Mon espace Kete,
-  withdraws it; registers the Compte Kete, reads it healthy and sees a signed event; a client of
-  Kete is refused.
+- `e2e-pending/e2e/cockpit.spec.ts`, waiting for the Compte Kete's published image
+  (`e2e-pending/README.md`): an operator signs in with two-factor, offers a product that a client
+  then sees in Mon espace Kete, withdraws it; registers the Compte Kete, reads it healthy and sees
+  a signed event; a client of Kete is refused.
 
 ```bash
-pnpm --filter @kete/cockpit test:e2e
+pnpm test
 ```
 
 ## Deploy
 
-`apps/cockpit/Dockerfile` (context at the repository root). Environment: `KETE_ACCOUNT_URL`,
+The `Dockerfile` at the root. The build receives a token that reads the `@kete-africa` packages
+(read:packages) as the build secret `node_auth_token`, never as a build argument; the image keeps
+only the build and the production dependencies. Environment: `KETE_ACCOUNT_URL`,
 `COCKPIT_URL`, `COCKPIT_CLIENT_ID`, `COCKPIT_CLIENT_SECRET`, `COCKPIT_SESSION_SECRET`,
 `KETE_OPERATORS_ORGANIZATION_ID`, `COCKPIT_DATABASE_URL`, `COCKPIT_ENCRYPTION_KEY`,
 `COCKPIT_PROBE_INTERVAL_SECONDS`. Migrations (owner role) before deploy:
-`COCKPIT_OWNER_URL=… pnpm --filter @kete/cockpit db:migrate`.
+`COCKPIT_OWNER_URL=… pnpm db:migrate`.

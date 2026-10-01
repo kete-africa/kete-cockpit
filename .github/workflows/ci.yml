@@ -39,4 +39,14 @@ jobs:
         env:
           COCKPIT_TEST_APP_URL: ${{ secrets.COCKPIT_TEST_APP_URL }}
       - name: The image builds, starts and reports healthy
-        run: docker build --secret id=node_auth_token,env=NODE_AUTH_TOKEN -t kete-cockpit:ci .
+        run: |
+          docker build --secret id=node_auth_token,env=NODE_AUTH_TOKEN -t kete-cockpit:ci .
+          docker run -d --name cockpit -p 3001:3000 kete-cockpit:ci
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:3001/health; then echo; break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:3001/health | grep -q '"status":"healthy"'
+      - name: The container's logs, when the image fails
+        if: failure()
+        run: docker logs cockpit || true
