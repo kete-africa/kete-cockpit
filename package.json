@@ -13,9 +13,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@kete/auth": "npm:@kete-africa/auth@^0.1.0",
+    "@kete/auth": "npm:@kete-africa/auth@^0.3.0",
     "@kete/design": "npm:@kete-africa/design@^0.2.0",
-    "@kete/sdk": "npm:@kete-africa/sdk@^0.2.0",
+    "@kete/sdk": "npm:@kete-africa/sdk@^0.6.0",
     "@tanstack/react-router": "^1.170.40",
     "@tanstack/react-start": "^1.168.59",
     "drizzle-orm": "^0.45.3",
@@ -37,6 +37,7 @@
     "drizzle-kit": "^0.31.11",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
     "vite": "^7.3.6",
     "vitest": "^3.2.7"
   }
