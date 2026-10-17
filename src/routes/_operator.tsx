@@ -57,6 +57,12 @@ function Layout() {
             >
               {m.nav_offers()}
             </Link>
+            <Link
+              to="/flotte"
+              className="whitespace-nowrap border-b-2 border-transparent py-1 text-body-sm font-semibold text-bark hover:text-ink data-[status=active]:border-primary data-[status=active]:text-ink"
+            >
+              {m.nav_fleet()}
+            </Link>
           </nav>
         </div>
       </header>

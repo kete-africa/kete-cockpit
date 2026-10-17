@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import { createEvent, deliveryHandler, postgresDedupeStore, sign } from '@kete/sdk';
+import { createCipheriv } from 'node:crypto';
 import { eq, inArray } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -125,6 +126,26 @@ describe('reading health', () => {
       'healthy',
     ]);
     expect(detail.app.version).toBe('1.2.4');
+  });
+});
+
+describe('the key ring', () => {
+  it('leaves out a key sealed under another encryption key, and keeps the others', async () => {
+    // A key sealed elsewhere: another Cockpit's key, or this one's before a rotation.
+    const other = createCipheriv('aes-256-gcm', randomBytes(32), randomBytes(12));
+    const body = Buffer.concat([other.update('secret', 'utf8'), other.final()]);
+    const sealed = [randomBytes(12), other.getAuthTag(), body]
+      .map((part) => part.toString('base64url'))
+      .join('.');
+    const kid = `kid_elsewhere_${run}`;
+    await db.insert(appKeys).values({ kid, appId, secretCiphertext: sealed });
+    try {
+      const kids = ((await loadKeyRing()).get(product) ?? []).map((key) => key.kid);
+      expect(kids).toContain(firstKey.kid);
+      expect(kids).not.toContain(kid);
+    } finally {
+      await db.delete(appKeys).where(eq(appKeys.kid, kid));
+    }
   });
 });
 
