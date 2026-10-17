@@ -121,7 +121,10 @@ export async function rotateKey(appId: string) {
   return key.shown;
 }
 
-/** The keys deliveries may be signed with, per product (expired ones left out). */
+/**
+ * The keys deliveries may be signed with, per product (expired ones left out). A key sealed under
+ * another encryption key is left out and said — one unreadable key never stops every delivery.
+ */
 export async function loadKeyRing(): Promise<KeyRing> {
   const rows = await db
     .select({
@@ -135,12 +138,15 @@ export async function loadKeyRing(): Promise<KeyRing> {
     .where(or(isNull(appKeys.notAfter), gt(appKeys.notAfter, new Date())));
   const ring = new Map<string, SigningKey[]>();
   for (const row of rows) {
+    let secret: string;
+    try {
+      secret = open(row.sealed);
+    } catch {
+      console.warn(`[registry] key ${row.kid} of ${row.product} cannot be opened: left out`);
+      continue;
+    }
     const keys = ring.get(row.product) ?? [];
-    keys.push({
-      kid: row.kid,
-      secret: open(row.sealed),
-      ...(row.notAfter ? { notAfter: row.notAfter } : {}),
-    });
+    keys.push({ kid: row.kid, secret, ...(row.notAfter ? { notAfter: row.notAfter } : {}) });
     ring.set(row.product, keys);
   }
   return ring;
