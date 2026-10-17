@@ -13,10 +13,32 @@ access come next (see the roadmap).
 | `/apps/$appId` | Health history, check now, latest events, signing keys and rotation                      |
 | `/api/events`  | Where apps deliver their signed events (`@kete/sdk` relay)                               |
 | `/offres`      | Offers on sale or withdrawn; the store's products not yet offered                        |
+| `/flotte`      | The fleet: each organization's Kete Enterprise, what waits for Kete first; say one is made |
 | `/refus`       | Why someone cannot enter (not an operator, no second factor)                             |
 | `/au-revoir`   | After signing out of the Cockpit                                                         |
 | `/auth/*`      | Sign-in with the Compte Kete (start, callback, sign-out)                                 |
 | `/health`      | Liveness                                                                                 |
+
+## The fleet (kete-core specs 123 and 125)
+
+An organization deploys its Kete Enterprise from « Mon Kete » in Mon espace Kete: shared, it is
+ready at once; dedicated, at its place or autonomous, it waits for Kete. « Flotte » reads every
+deployment from the Compte Kete — the one source, never copied — what waits for Kete first, and
+the operator says when one is made, at its https address: the Compte Kete marks it ready, journals
+the gesture in Kete's organization and tells the organization (`deployment.ready`).
+
+```mermaid
+sequenceDiagram
+  participant O as Operator
+  participant K as Kete Cockpit
+  participant C as Compte Kete
+  O->>K: /flotte
+  K->>C: GET /api/admin/deployments (operator's token, server-side)
+  C-->>K: every organization's deployment, what waits first
+  O->>K: made, at https://kya.kete.software
+  K->>C: POST /api/admin/deployments
+  C->>C: ready, journaled, deployment.ready to the organization
+```
 
 ## How it works
 
