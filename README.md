@@ -49,6 +49,10 @@ sequenceDiagram
   by the Cockpit, and again by the Compte Kete on every admin call.
 - **Its own database** (Neon `kete-cockpit`): registry, keys (secrets encrypted at rest), health
   readings, received events — Kete's operating data, decision 0004.
+- **Its test database** (`COCKPIT_TEST_OWNER_URL`, `COCKPIT_TEST_APP_URL`, local `.env` and CI): the
+  database `cockpit` on the kete-core project's `test` branch, made on 2026-10-17 through Kete's
+  provisioning port (`scripts/test-database.ts`) once the kete-cockpit project had spent its free
+  compute hours.
 - **Health** is read every `COCKPIT_PROBE_INTERVAL_SECONDS` (default 300) by one instance at a time.
 
 ```mermaid

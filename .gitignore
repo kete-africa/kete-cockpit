@@ -7,3 +7,7 @@ playwright-report/
 project.inlang/cache/
 project.inlang/.meta.json
 project.inlang/README.md
+node_modules/
+.env
+.env.*
+!.env.example
