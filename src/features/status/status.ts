@@ -1,6 +1,6 @@
-import { sql } from "drizzle-orm";
-import { db } from "@/platform/db";
-import type { ProbeStatus } from "@/platform/schema";
+import { sql } from 'drizzle-orm';
+import { db } from '@/platform/db';
+import type { ProbeStatus } from '@/platform/schema';
 
 // The status of Kete's services (phase 11, step E3: « la page d'état des services »): each app the
 // Cockpit watches, as anyone may see it — its name, how it answers now, and how often it answered
@@ -20,13 +20,10 @@ export interface ServiceStatus {
   days: (number | null)[];
 }
 
-const share = (value: unknown) =>
-  value === null || value === undefined ? null : Number(value);
+const share = (value: unknown) => (value === null || value === undefined ? null : Number(value));
 
 /** Every watched service, by environment then name. */
-export async function servicesStatus(
-  at: Date = new Date(),
-): Promise<ServiceStatus[]> {
+export async function servicesStatus(at: Date = new Date()): Promise<ServiceStatus[]> {
   const { rows } = await db.execute<{
     id: string;
     name: string;
