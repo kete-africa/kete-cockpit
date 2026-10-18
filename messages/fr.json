@@ -99,5 +99,17 @@
   "fleet_address_hint": "Une adresse https où l’instance répond.",
   "fleet_make": "C’est fait",
   "fleet_made": "C’est noté : l’organisation trouve son Kete prêt et en est avertie.",
-  "fleet_conflict": "Déjà fait, ou retiré entre-temps : la liste est à jour."
+  "fleet_conflict": "Déjà fait, ou retiré entre-temps : la liste est à jour.",
+  "status_page_title": "État des services Kete",
+  "status_page_all_up": "Tous les services répondent.",
+  "status_page_some_down": "Un service au moins ne répond pas normalement : nous y travaillons.",
+  "status_page_none": "Aucun service n’est encore suivi ici.",
+  "status_page_production": "Production",
+  "status_page_staging": "Préproduction",
+  "status_page_preview": "Aperçus",
+  "status_page_development": "Développement",
+  "status_page_shares": "A répondu {day} des fois sur 24 h · {week} sur 7 jours",
+  "status_page_checked": "relevé le {at}",
+  "status_page_week": "Les sept derniers jours",
+  "status_page_how": "Kete Cockpit interroge chaque service à intervalles réguliers (toutes les cinq minutes) ; une barre par jour, du plus ancien au plus récent."
 }
