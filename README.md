@@ -102,6 +102,13 @@ flowchart LR
   M --> A[(apps + app_keys)]
 ```
 
+## Operators on staging (kete-core spec 135)
+
+Entering the Cockpit takes Kete's organization, owner or admin, and a second factor. On staging
+only, `KETE_OPERATORS_SECOND_FACTOR=optional` lets an operator in without one, to try every flow —
+never where `KETE_ENVIRONMENT` is production or unset (`secondFactorWaived` in
+`platform/signin.ts`).
+
 ## Run locally
 
 `.env` (see `.env.example`) with the Compte Kete running on port 3100 and the Cockpit registered

@@ -17,6 +17,20 @@ export function getSignIn(): KeteSignIn {
   return signIn;
 }
 
+const TRIAL_ENVIRONMENTS = new Set(['staging', 'preview', 'development']);
+
+/**
+ * Whether operators may do without a second factor here (kete-core spec 135): only with
+ * `KETE_OPERATORS_SECOND_FACTOR=optional` where `KETE_ENVIRONMENT` says staging, a preview or
+ * development — so every flow can be tried. Never in production, nor where it is unset.
+ */
+export function secondFactorWaived(environment: NodeJS.ProcessEnv = process.env): boolean {
+  return (
+    environment.KETE_OPERATORS_SECOND_FACTOR === 'optional' &&
+    TRIAL_ENVIRONMENTS.has(environment.KETE_ENVIRONMENT ?? '')
+  );
+}
+
 export type OperatorCheck =
   | { status: 'signed_out' }
   | { status: 'refused'; reason: 'not_an_operator' | 'no_two_factor'; identity: KeteIdentity }
@@ -32,6 +46,7 @@ export function checkOperator(identity: KeteIdentity | null): OperatorCheck {
     identity.organizationId === env.operatorsOrganizationId &&
     (identity.role === 'owner' || identity.role === 'admin');
   if (!member) return { status: 'refused', reason: 'not_an_operator', identity };
-  if (!identity.twoFactor) return { status: 'refused', reason: 'no_two_factor', identity };
+  if (!identity.twoFactor && !secondFactorWaived())
+    return { status: 'refused', reason: 'no_two_factor', identity };
   return { status: 'operator', identity };
 }
