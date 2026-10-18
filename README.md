@@ -7,17 +7,18 @@ access come next (see the roadmap).
 
 ## Screens
 
-| Path           | What it is for                                                                           |
-| -------------- | ---------------------------------------------------------------------------------------- |
-| `/apps`        | Registered apps: health, version, events of the last 24 h; register one (key shown once) |
-| `/apps/$appId` | Health history, check now, latest events, signing keys and rotation                      |
-| `/api/events`  | Where apps deliver their signed events (`@kete/sdk` relay)                               |
-| `/offres`      | Offers on sale or withdrawn; the store's products not yet offered                        |
+| Path           | What it is for                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| `/apps`        | Registered apps: health, version, events of the last 24 h; register one (key shown once)   |
+| `/apps/$appId` | Health history, check now, latest events, signing keys and rotation                        |
+| `/api/events`  | Where apps deliver their signed events (`@kete/sdk` relay)                                 |
+| `/offres`      | Offers on sale or withdrawn; the store's products not yet offered                          |
 | `/flotte`      | The fleet: each organization's Kete Enterprise, what waits for Kete first; say one is made |
-| `/refus`       | Why someone cannot enter (not an operator, no second factor)                             |
-| `/au-revoir`   | After signing out of the Cockpit                                                         |
-| `/auth/*`      | Sign-in with the Compte Kete (start, callback, sign-out)                                 |
-| `/health`      | Liveness                                                                                 |
+| `/etat`        | **Public**: Kete's services, how each answers now and over 24 h and 7 days (step E3)       |
+| `/refus`       | Why someone cannot enter (not an operator, no second factor)                               |
+| `/au-revoir`   | After signing out of the Cockpit                                                           |
+| `/auth/*`      | Sign-in with the Compte Kete (start, callback, sign-out)                                   |
+| `/health`      | Liveness                                                                                   |
 
 ## The fleet (kete-core specs 123 and 125)
 
@@ -38,6 +39,19 @@ sequenceDiagram
   O->>K: made, at https://kya.kete.software
   K->>C: POST /api/admin/deployments
   C->>C: ready, journaled, deployment.ready to the organization
+```
+
+## The status page (phase 11, step E3)
+
+`/etat` is open to everyone: each app the Cockpit watches, its state at its last reading, and the
+share of readings where it answered (healthy or degraded) over 24 hours and 7 days, one bar per day
+(`features/status`). Nothing of an app's inside is shown: no address, version nor dependency.
+
+```mermaid
+flowchart LR
+  P[probeAllOnce · every COCKPIT_PROBE_INTERVAL_SECONDS] --> R[(probes)]
+  R --> S[servicesStatus · now, 24 h, 7 days]
+  S --> E[/etat · public]
 ```
 
 ## How it works

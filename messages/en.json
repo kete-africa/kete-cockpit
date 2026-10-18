@@ -99,5 +99,17 @@
   "fleet_address_hint": "An https address where the instance answers.",
   "fleet_make": "It is made",
   "fleet_made": "Noted: the organization finds its Kete ready and is told.",
-  "fleet_conflict": "Already made, or withdrawn meanwhile: the list is up to date."
+  "fleet_conflict": "Already made, or withdrawn meanwhile: the list is up to date.",
+  "status_page_title": "Kete services status",
+  "status_page_all_up": "Every service answers.",
+  "status_page_some_down": "At least one service does not answer normally: we are on it.",
+  "status_page_none": "No service is followed here yet.",
+  "status_page_production": "Production",
+  "status_page_staging": "Staging",
+  "status_page_preview": "Previews",
+  "status_page_development": "Development",
+  "status_page_shares": "Answered {day} of the time over 24 h · {week} over 7 days",
+  "status_page_checked": "read on {at}",
+  "status_page_week": "The last seven days",
+  "status_page_how": "Kete Cockpit asks each service at regular intervals (every five minutes); one bar per day, the oldest first."
 }
