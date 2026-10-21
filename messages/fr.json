@@ -111,5 +111,7 @@
   "status_page_shares": "A répondu {day} des fois sur 24 h · {week} sur 7 jours",
   "status_page_checked": "relevé le {at}",
   "status_page_week": "Les sept derniers jours",
-  "status_page_how": "Kete Cockpit interroge chaque service à intervalles réguliers (toutes les cinq minutes) ; une barre par jour, du plus ancien au plus récent."
+  "status_page_how": "Kete Cockpit interroge chaque service à intervalles réguliers (toutes les cinq minutes) ; une barre par jour, du plus ancien au plus récent.",
+  "refused_other_organization": "Vous êtes peut-être opérateur dans l’organisation Kete, mais une autre est active dans votre Compte Kete. Choisissez Kete : vous revenez ici aussitôt.",
+  "refused_switch": "Changer d’organisation"
 }

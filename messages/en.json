@@ -111,5 +111,7 @@
   "status_page_shares": "Answered {day} of the time over 24 h · {week} over 7 days",
   "status_page_checked": "read on {at}",
   "status_page_week": "The last seven days",
-  "status_page_how": "Kete Cockpit asks each service at regular intervals (every five minutes); one bar per day, the oldest first."
+  "status_page_how": "Kete Cockpit asks each service at regular intervals (every five minutes); one bar per day, the oldest first.",
+  "refused_other_organization": "You may be an operator in the Kete organization while another is active in your Compte Kete. Choose Kete: you come straight back here.",
+  "refused_switch": "Change organization"
 }
