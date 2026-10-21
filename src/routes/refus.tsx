@@ -14,7 +14,7 @@ export const Route = createFileRoute('/refus')({
 
 function Refused() {
   const { raison } = Route.useSearch();
-  const { accountUrl } = Route.useLoaderData();
+  const { accountUrl, publicUrl } = Route.useLoaderData();
   return (
     <div className="flex min-h-dvh flex-col">
       <KeteBand />
@@ -38,6 +38,17 @@ function Refused() {
           >
             {m.refused_security()}
           </a>
+        )}
+        {raison === 'not_an_operator' && accountUrl && publicUrl && (
+          <>
+            <p className="text-body">{m.refused_other_organization()}</p>
+            <a
+              href={`${accountUrl}/espace/changer?retour=${encodeURIComponent(`${publicUrl}/auth/connexion`)}`}
+              className="font-semibold text-primary underline"
+            >
+              {m.refused_switch()}
+            </a>
+          </>
         )}
         <a href="/auth/connexion" className="font-semibold text-primary underline">
           {m.refused_retry()}

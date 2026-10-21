@@ -120,6 +120,8 @@ read:packages token in your user configuration, never in this repository.
 pnpm dev
 ```
 
+
+**An operator in another organization** (Kete Enterprise spec 098): refused because another organization is active in her Compte Kete, she is offered « Changer d'organisation » (the Compte Kete's `/espace/changer`), and comes straight back signed in to Kete's.
 ## Tests
 
 - `tests/registry.test.ts` (Neon `test`, a witness app): registration and its refusals, health

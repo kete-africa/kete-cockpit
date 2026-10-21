@@ -15,4 +15,6 @@ export const fetchOperator = createServerFn({ method: 'GET' }).handler(async () 
 /** Where the operator's Compte Kete is (e.g. to turn on two-factor). */
 export const fetchAccountUrl = createServerFn({ method: 'GET' }).handler(() => ({
   accountUrl: process.env.KETE_ACCOUNT_URL ?? '',
+  /** Where she comes back after changing organization in the Compte Kete. */
+  publicUrl: (process.env.COCKPIT_URL ?? '').replace(/\/$/, ''),
 }));
